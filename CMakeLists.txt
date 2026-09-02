@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.0)
-project(cpp VERSION 0.1.0 LANGUAGES C CXX)
+project(program VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,5 +14,5 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(fmt)
 
-add_executable(cpp main.cpp)
-target_link_libraries(cpp PRIVATE fmt::fmt)
+add_executable(program main.cpp)
+target_link_libraries(program PRIVATE fmt::fmt)
