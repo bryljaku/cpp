@@ -6,6 +6,7 @@
 #include <condition_variable>
 #include <vector>
 
+
 class ConcurrentStack {
     public:
     ConcurrentStack() = default;
