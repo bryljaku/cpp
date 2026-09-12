@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <condition_variable>
 #include <vector>
+#include "shared_pointer.h"
 
 
 class ConcurrentStack {
@@ -65,16 +66,29 @@ void consumer() {
     }
 }
 
+class A {
+  public:
+    A(int32_t i) : id(i) {};
+  private:
+    int32_t id; 
+};
+
 int main() {
     std::println("Hello, World!");
-    auto producerThread = std::thread(producer);
-    std::vector<std::thread> consumerThreads;
-    for (int i = 0; i < 2; ++i) {
-      consumerThreads.push_back(std::thread(consumer));
-    }
-    producerThread.join();
-    for (auto& consumerThread: consumerThreads) {
-      consumerThread.join();
-    }
+    auto x = shared_pointer(new A(15));
+    std::println("{}", x.get_count());
+    auto y = shared_pointer(x);
+    std::println("{}", y.get_count());
+    auto z = std::move(x);
+    std::println("{}", z.get_count());
+    // auto producerThread = std::thread(producer);
+    // std::vector<std::thread> consumerThreads;
+    // for (int i = 0; i < 2; ++i) {
+    //   consumerThreads.push_back(std::thread(consumer));
+    // }
+    // producerThread.join();
+    // for (auto& consumerThread: consumerThreads) {
+    //   consumerThread.join();
+    // }
     return 0;
 }

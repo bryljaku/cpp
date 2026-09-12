@@ -14,5 +14,5 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(fmt)
 
-add_executable(program main.cpp)
+add_executable(program main.cpp shared_pointer.h)
 target_link_libraries(program PRIVATE fmt::fmt)
