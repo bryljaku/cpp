@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <condition_variable>
 #include <vector>
-#include "shared_pointer.h"
+#include "unique_pointer.h"
 
 
 class ConcurrentStack {
@@ -35,7 +35,6 @@ class ConcurrentStack {
         auto lk = std::shared_lock(m);
         return s.size();
     }
-
 
     private:
     std::stack<int> s;
@@ -76,7 +75,6 @@ class A {
 int main() {
 
     std::println("Hello, World!");
-    
     std::println("Testing shared_pointer");
     auto x = shared_pointer(new A(15));
     std::println("{}", x.get_count());
@@ -87,7 +85,6 @@ int main() {
 
     std::println("Testing unique_pointer");
     auto u1 = unique_pointer(new A(10));
-    
     std::println("u1 is set {}", u1.is_set());
 
     auto u2 = std::move(u1);
@@ -95,11 +92,6 @@ int main() {
     std::println("After move");
     std::println("u1 is set {}", u1.is_set());
     std::println("u2 is set {}", u2.is_set());
-
-
-
-    
-
     // auto producerThread = std::thread(producer);
     // std::vector<std::thread> consumerThreads;
     // for (int i = 0; i < 2; ++i) {
