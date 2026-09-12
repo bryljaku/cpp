@@ -1,105 +1,68 @@
+#include "smart_pointer.h"
+#include "stack.h"
+
 #include <print>
-#include <stack>
 #include <thread>
-#include <shared_mutex>
-#include <unistd.h>
-#include <condition_variable>
-#include <vector>
-#include "unique_pointer.h"
-
-
-class ConcurrentStack {
-    public:
-    ConcurrentStack() = default;
-    
-    void push(int value) {
-        {
-          auto lk = std::lock_guard(m);
-          s.push(value);
-        } 
-        is_stack_nonempty.notify_one();
-    }
-    
-    int wait_and_pop() {
-      int res;
-      {
-        auto lk = std::unique_lock(m);
-        is_stack_nonempty.wait(lk, [this]{return !s.empty();});
-        res = s.top();
-        s.pop();
-      }
-      return res;
-    } 
-    
-    size_t size() const {
-        auto lk = std::shared_lock(m);
-        return s.size();
-    }
-
-    private:
-    std::stack<int> s;
-    mutable std::shared_mutex m;
-    std::condition_variable_any is_stack_nonempty;
-};
 
 auto stack = ConcurrentStack();
 
 void producer() {
-    int i = 20;
-    while (i > 0) {
-        std::println("Producing");
-        stack.push(i);
-        i--;
-        sleep(1);
-    }
+  int i = 20;
+  while (i > 0) {
+    std::println("Producing");
+    stack.push(i);
+    i--;
+    sleep(1);
+  }
 }
 
 void consumer() {
-    int capacityLeft = 10;
-    while (capacityLeft > 0) {
-        if (stack.size() > 0) {
-            std::println("Consuming {}", std::this_thread::get_id());
-            stack.wait_and_pop();
-            capacityLeft--;
-        }
+  int capacityLeft = 10;
+  while (capacityLeft > 0) {
+    if (stack.size() > 0) {
+      std::println("Consuming {}", std::this_thread::get_id());
+      stack.wait_and_pop();
+      capacityLeft--;
     }
+  }
 }
 
 class A {
-  public:
-    A(int32_t i) : id(i) {};
-  private:
-    int32_t id; 
+public:
+  A(int32_t i) : id(i) {};
+
+private:
+  int32_t id;
 };
 
 int main() {
 
-    std::println("Hello, World!");
-    std::println("Testing shared_pointer");
-    auto x = shared_pointer(new A(15));
-    std::println("{}", x.get_count());
-    auto y = shared_pointer(x);
-    std::println("{}", y.get_count());
-    auto z = std::move(x);
-    std::println("{}", z.get_count());
+  std::println("Hello, World!");
+  std::println("Testing shared_pointer");
+  auto x = shared_pointer(new A(15));
+  std::println("{}", x.get_count());
+  auto y = shared_pointer(x);
+  std::println("{}", y.get_count());
+  auto z = std::move(x);
+  std::println("{}", z.get_count());
 
-    std::println("Testing unique_pointer");
-    auto u1 = unique_pointer(new A(10));
-    std::println("u1 is set {}", u1.is_set());
+  std::println("Testing unique_pointer");
+  auto u1 = unique_pointer(new A(10));
+  std::println("u1 is set {}", u1.is_set());
 
-    auto u2 = std::move(u1);
+  auto u2 = std::move(u1);
 
-    std::println("After move");
-    std::println("u1 is set {}", u1.is_set());
-    std::println("u2 is set {}", u2.is_set());
-    // auto producerThread = std::thread(producer);
-    // std::vector<std::thread> consumerThreads;
-    // for (int i = 0; i < 2; ++i) {
-    //   consumerThreads.push_back(std::thread(consumer));
-    // }
-    // producerThread.join();
-    // for (auto& consumerThread: consumerThreads) {
-    //   consumerThread.join();
-    // }
-    return 0;
+  std::println("After move");
+  std::println("u1 is set {}", u1.is_set());
+  std::println("u2 is set {}", u2.is_set());
+  // auto producerThread = std::thread(producer);
+  // std::vector<std::thread> consumerThreads;
+  // for (int i = 0; i < 2; ++i) {
+  //   consumerThreads.push_back(std::thread(consumer));
+  // }
+  // producerThread.join();
+  // for (auto& consumerThread: consumerThreads) {
+  //   consumerThread.join();
+  // }
+  return 0;
 }
