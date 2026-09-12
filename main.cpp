@@ -74,13 +74,32 @@ class A {
 };
 
 int main() {
+
     std::println("Hello, World!");
+    
+    std::println("Testing shared_pointer");
     auto x = shared_pointer(new A(15));
     std::println("{}", x.get_count());
     auto y = shared_pointer(x);
     std::println("{}", y.get_count());
     auto z = std::move(x);
     std::println("{}", z.get_count());
+
+    std::println("Testing unique_pointer");
+    auto u1 = unique_pointer(new A(10));
+    
+    std::println("u1 is set {}", u1.is_set());
+
+    auto u2 = std::move(u1);
+
+    std::println("After move");
+    std::println("u1 is set {}", u1.is_set());
+    std::println("u2 is set {}", u2.is_set());
+
+
+
+    
+
     // auto producerThread = std::thread(producer);
     // std::vector<std::thread> consumerThreads;
     // for (int i = 0; i < 2; ++i) {

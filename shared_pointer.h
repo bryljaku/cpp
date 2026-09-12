@@ -90,12 +90,38 @@ template <typename T>
 class unique_pointer {
   public:
     unique_pointer(T* ptr) : ptr(ptr) {};
+    
+    // copy
+    unique_pointer(const unique_pointer& obj) = delete;
+    unique_pointer& operator=(const unique_pointer& obj) = delete;
+
+    //move
+    unique_pointer(unique_pointer&& obj) {
+      this->ptr = obj.ptr;
+      obj.ptr = nullptr;
+    };
+    
+    unique_pointer& operator=(unique_pointer&& obj) {
+      cleanup_routine();
+      this->ptr = obj.ptr;
+      obj.ptr = nullptr;
+    };
 
     ~unique_pointer() {
-      free(ptr);
+      cleanup_routine();
+    };
+
+    bool is_set() const {
+      return ptr != nullptr;
     };
 
   private:
+    void cleanup_routine() {
+      if (ptr != nullptr) {
+        free(ptr);
+      }
+    };
+
     T* ptr;
 };
 
