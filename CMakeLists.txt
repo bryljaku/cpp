@@ -15,5 +15,5 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(fmt)
 
-add_executable(program main.cpp smart_pointer.h stack.h)
+add_executable(program main.cpp smart_pointer.h stack.h queue.h)
 target_link_libraries(program PRIVATE fmt::fmt)

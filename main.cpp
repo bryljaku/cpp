@@ -1,16 +1,16 @@
+#include "queue.h"
 #include "smart_pointer.h"
 #include "stack.h"
-
 #include <print>
 #include <thread>
 
-auto stack = ConcurrentStack();
+auto data_structure = SimpleMutexQueue<int>();
 
 void producer() {
   int i = 20;
   while (i > 0) {
     std::println("Producing");
-    stack.push(i);
+    data_structure.push(i);
     i--;
     sleep(1);
   }
@@ -19,50 +19,22 @@ void producer() {
 void consumer() {
   int capacityLeft = 10;
   while (capacityLeft > 0) {
-    if (stack.size() > 0) {
+    if (!data_structure.empty()) {
       std::println("Consuming {}", std::this_thread::get_id());
-      stack.wait_and_pop();
+      data_structure.wait_and_pop();
       capacityLeft--;
     }
   }
 }
-
-class A {
-public:
-  A(int32_t i) : id(i) {};
-
-private:
-  int32_t id;
-};
-
 int main() {
-
-  std::println("Hello, World!");
-  std::println("Testing shared_pointer");
-  auto x = shared_pointer(new A(15));
-  std::println("{}", x.get_count());
-  auto y = shared_pointer(x);
-  std::println("{}", y.get_count());
-  auto z = std::move(x);
-  std::println("{}", z.get_count());
-
-  std::println("Testing unique_pointer");
-  auto u1 = unique_pointer(new A(10));
-  std::println("u1 is set {}", u1.is_set());
-
-  auto u2 = std::move(u1);
-
-  std::println("After move");
-  std::println("u1 is set {}", u1.is_set());
-  std::println("u2 is set {}", u2.is_set());
-  // auto producerThread = std::thread(producer);
-  // std::vector<std::thread> consumerThreads;
-  // for (int i = 0; i < 2; ++i) {
-  //   consumerThreads.push_back(std::thread(consumer));
-  // }
-  // producerThread.join();
-  // for (auto& consumerThread: consumerThreads) {
-  //   consumerThread.join();
-  // }
+  auto producerThread = std::thread(producer);
+  std::vector<std::thread> consumerThreads;
+  for (int i = 0; i < 2; ++i) {
+    consumerThreads.push_back(std::thread(consumer));
+  }
+  producerThread.join();
+  for (auto &consumerThread : consumerThreads) {
+    consumerThread.join();
+  }
   return 0;
 }
