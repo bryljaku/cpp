@@ -4,24 +4,24 @@
 #include <print>
 #include <thread>
 
-auto data_structure = SimpleMutexQueue<int>();
+auto data_structure = SimpleQueue<int>();
 
 void producer() {
-  int i = 20;
+  int i = 8;
   while (i > 0) {
     std::println("Producing");
-    data_structure.push(i);
+    data_structure.push(&i);
     i--;
     sleep(1);
   }
 }
 
 void consumer() {
-  int capacityLeft = 10;
+  int capacityLeft = 4;
   while (capacityLeft > 0) {
-    if (!data_structure.empty()) {
+    int res;
+    if (data_structure.pop(&res)) {
       std::println("Consuming {}", std::this_thread::get_id());
-      data_structure.wait_and_pop();
       capacityLeft--;
     }
   }

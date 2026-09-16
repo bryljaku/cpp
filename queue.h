@@ -2,6 +2,39 @@
 #include <queue>
 #include <shared_mutex>
 
+template <typename T> class SimpleQueue {
+public:
+  SimpleQueue() {};
+
+  SimpleQueue(SimpleQueue &) = delete;
+  SimpleQueue &operator=(SimpleQueue &) = delete;
+
+  bool pop(T *target) {
+    auto lk = std::unique_lock(m);
+    if (internal_q.empty()) {
+      return false;
+    }
+    *target = std::move(internal_q.front());
+    internal_q.pop();
+    return true;
+  };
+
+  void push(T *value) {
+    auto lk = std::unique_lock(m);
+    internal_q.push(*value);
+  };
+
+  bool empty() const {
+    auto lk = std::unique_lock(m);
+    return internal_q.size();
+  };
+
+private:
+  std::queue<T> internal_q;
+  mutable std::shared_mutex m;
+};
+
+// condition variable and wait_and_pop
 template <typename T> class SimpleMutexQueue {
 public:
   SimpleMutexQueue() {};
