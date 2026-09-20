@@ -4,20 +4,19 @@
 #include <print>
 #include <thread>
 
-auto data_structure = SimpleQueue<int>();
+AtomicQueue<int> data_structure{};
 
 void producer() {
-  int i = 8;
+  int i = 500;
   while (i > 0) {
     std::println("Producing");
     data_structure.push(&i);
     i--;
-    sleep(1);
   }
 }
 
 void consumer() {
-  int capacityLeft = 4;
+  int capacityLeft = 250;
   while (capacityLeft > 0) {
     int res;
     if (data_structure.pop(&res)) {
