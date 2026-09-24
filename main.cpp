@@ -6,32 +6,39 @@
 
 AtomicQueue<int> data_structure{};
 
-void producer() {
-  int i = 500;
+void producer(int id) {
+  int i = 10;
   while (i > 0) {
-    std::println("Producing");
-    data_structure.push(&i);
+    int y = i;
+    std::println("Producing {} by thread {}", y, id);
+    data_structure.push(&y, id);
     i--;
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
 
-void consumer() {
-  int capacityLeft = 250;
+void consumer(int id) {
+  int capacityLeft = 10;
   while (capacityLeft > 0) {
     int res;
-    if (data_structure.pop(&res)) {
-      std::println("Consuming {}", std::this_thread::get_id());
+    if (data_structure.pop(&res, id)) {
+      std::println("Consumed {} by thread {}", res, id);
       capacityLeft--;
     }
   }
 }
 int main() {
-  auto producerThread = std::thread(producer);
+  std::vector<std::thread> producerThreads;
+  for (int i = 0; i < 2; ++i) {
+    producerThreads.push_back(std::thread(producer, 1000 + i));
+  }
   std::vector<std::thread> consumerThreads;
   for (int i = 0; i < 2; ++i) {
-    consumerThreads.push_back(std::thread(consumer));
+    consumerThreads.push_back(std::thread(consumer, i));
   }
-  producerThread.join();
+  for (auto &producerThread : producerThreads) {
+    producerThread.join();
+  }
   for (auto &consumerThread : consumerThreads) {
     consumerThread.join();
   }
