@@ -4,7 +4,7 @@
 #include <print>
 #include <thread>
 
-AtomicQueue<int> data_structure{};
+FastQueue<int, 1024, 4, true, 8> data_structure{};
 
 void producer(int id) {
   int i = 10;
@@ -27,20 +27,28 @@ void consumer(int id) {
     }
   }
 }
-int main() {
-  std::vector<std::thread> producerThreads;
-  for (int i = 0; i < 2; ++i) {
-    producerThreads.push_back(std::thread(producer, 1000 + i));
-  }
-  std::vector<std::thread> consumerThreads;
-  for (int i = 0; i < 2; ++i) {
-    consumerThreads.push_back(std::thread(consumer, i));
-  }
-  for (auto &producerThread : producerThreads) {
-    producerThread.join();
-  }
-  for (auto &consumerThread : consumerThreads) {
-    consumerThread.join();
-  }
-  return 0;
+
+constexpr int NUM_ITEMS = 5'000'000;
+template <typename Q>
+double run_benchmark(int num_producers, int num_consumers) {
+  Q queue;
+  std::atomic_flag start_flag = false;
+  std::atomic<int> items_consumed;
+
+  auto producer = [&](uint32_t tid, int items_to_push) {
+    start_flag.wait(false, std::memory_order::acquire);
+    for (int i = 0; i < items_to_push; ++i) {
+      queue.push(tid * items_to_push + i, tid);
+    }
+  };
+  auto consumer = [&](uint32_t tid, int total_items_to_consume) {
+    start_flag.wait(false, std::memory_order::acquire);
+    while (items_consumed.load(std::memory_order::acquire) <
+           total_items_to_consume) {
+
+      queue.pop(tid);
+    }
+  };
 }
+
+int main() { return 0; }
