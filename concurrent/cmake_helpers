@@ -1,0 +1,7 @@
+cbuild() {
+  cmake -S . -B build && cmake --build build 
+}
+
+crun() {
+  cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build --target program && ./build/program
+}
